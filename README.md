@@ -8,13 +8,25 @@ With [clang-format](http://clang.llvm.org/docs/ClangFormat.html) you can use Cla
 
 ![demo](https://raw.github.com/travisjeffery/ClangFormat-Xcode/master/README/clangformat-xcode-demo.gif)
 
+
 ## Installation:
 
-Install via [Alcatraz](https://github.com/mneorr/Alcatraz).
+:warning: From XCode 8+, unsigning is required in order to use community-made plugins.
+Check https://github.com/inket/update_xcode_plugins for more information. 
+
+Install via [Alcatraz](http://alcatraz.io/).
 
 OR
 
 Clone this repo, build and run ClangFormat, restart Xcode.
+
+## Removing ClangFormat
+
+To remove ClangFormat, run the following in your terminal:
+
+`rm -r "~/Library/Application Support/Developer/Shared/Xcode/Plug-ins/ClangFormat.xcplugin"`
+
+Or just find the same file and move it to the trash. You'll need to restart Xcode after deleting the plugin.
 
 ## Usage:
 

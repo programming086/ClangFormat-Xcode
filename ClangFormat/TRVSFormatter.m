@@ -50,9 +50,8 @@
 }
 
 - (void)formatSelectedCharacters {
-  if (![TRVSXcode textViewHasSelection])
-    return;
-
+  // Even if there is no selection, go one and perform a format with 0-length
+  // range. This will format the statement under cursor.
   [self formatRanges:[[TRVSXcode textView] selectedRanges]
           inDocument:[TRVSXcode sourceCodeDocument]];
 }
@@ -89,6 +88,17 @@
 }
 
 - (void)formatDocument:(IDESourceCodeDocument *)document {
+  NSRect rect = [[TRVSXcode textView] visibleRect];
+  NSPoint containerOrigin = [[TRVSXcode textView] textContainerOrigin];
+  rect = NSOffsetRect(rect, -containerOrigin.x, -containerOrigin.y);
+  NSRange glyphRange = [[[TRVSXcode textView] layoutManager]
+      glyphRangeForBoundingRect:rect
+                inTextContainer:[[TRVSXcode textView] textContainer]];
+  NSRange charRange = [[[TRVSXcode textView] layoutManager]
+      characterRangeForGlyphRange:glyphRange
+                 actualGlyphRange:NULL];
+    
+    
   NSUInteger location = [[TRVSXcode textView] selectedRange].location;
   NSUInteger length = [[document textStorage] length];
 
@@ -103,13 +113,15 @@
 
   if (documentIsLongerAfterFormatting && location > diff) {
     location -= diff;
+    charRange.length -= diff;
   } else if (!documentIsLongerAfterFormatting) {
     location += diff;
+    charRange.length += diff;
   }
 
   NSRange range = NSMakeRange(location, 0);
   [[TRVSXcode textView] setSelectedRange:range];
-  [[TRVSXcode textView] scrollRangeToVisible:range];
+  [[TRVSXcode textView] scrollRangeToVisible:charRange];
 }
 
 #pragma mark - Private
@@ -216,7 +228,7 @@
     task.standardOutput = outputPipe;
     task.standardError = errorPipe;
     task.launchPath = shellString;
-    task.arguments = @[ @"-l", @"-c", @"which clang-format" ];
+    task.arguments = @[ @"-c", @"which clang-format" ];
 
     [task launch];
     [task waitUntilExit];
